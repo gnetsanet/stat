@@ -3,6 +3,7 @@ title: "Machine Learning - Practical"
 author: "Netsanet Gebremedhin"
 date: "October 21, 2015"
 output: html_document
+keep_md: true
 ---
 
 ##  Introduction
@@ -59,7 +60,7 @@ dim(test)
 ### Further partitioning the training data into training and validation sets
 Partition the data using random subsampling without replacement
 
-```{r echo=FALSE, cache=TRUE, warning=FALSE}
+```{r warning=FALSE}
 library(caret)
 set.seed(1413)
 trainset <- createDataPartition(y=train$classe, p=0.75, list=FALSE)
@@ -77,17 +78,19 @@ Visualizing the distribution of the outcome variable
 plot(trainingSet$classe, col="coral2", main="Frequency of Unilateral Dumbbell Biceps Curl Fashion", xlab="Unilateral Dumbbell Biceps Curl Fashions", ylab="Frequency")
 ```
 ### Prediction using Random Forest
-Train a model on the training set and check the performance of the model by making predictions on the validation set.
+Train model on the training set and check the performance of the model by making predictions on the validation set.
 
-```{r cache=TRUE}
+```{r}
 library(randomForest)
 model <- randomForest(classe ~. , data=trainingSet, method="class")
 model_prediction1 <- predict(model, trainingSet, type = "class")
-confusionMatrix(model_prediction1, trainingSet$classe)
 ```
 
-Not surprisingly the model performs well on the dataset it was trained on and accurately predicts the outcome class
+Not surprising the model performs well on the dataset it was trained on and accurately predicts the outcome class
 
+```{r}
+confusionMatrix(model_prediction1, trainingSet$classe)
+```
 
 ## Model Evaluation
 
