@@ -34,8 +34,8 @@ dim(test)
 ```
 Discard features with all missing values
 
-There are 6 such columns 
-```{r cache=TRUE}
+There are 60 such columns 
+```{r}
 dim(train[,colSums(is.na(train))==0])
 which(colSums(is.na(train))==0)
 train<-train[,which(colSums(is.na(train))==0)]
@@ -47,7 +47,7 @@ test<-test[,which(colSums(is.na(test))==0)]
 
 Remove the following features/columns that are irrelevant and hence non-predictive
 
-```{r cache=TRUE}
+```{r}
 colnames(train[,1:7])
 train<-train[,-c(1:7)]
 dim(train)
@@ -67,35 +67,33 @@ trainingSet <- train[trainset,]
 validationSet <- train[-trainset,]
 ```
 
-```{r cache=TRUE}
+```{r}
 dim(trainingSet)
 dim(validationSet)
 ```
 Visualizing the distribution of the outcome variable
 
-```{r cache=TRUE}
+```{r}
 plot(trainingSet$classe, col="coral2", main="Frequency of Unilateral Dumbbell Biceps Curl Fashion", xlab="Unilateral Dumbbell Biceps Curl Fashions", ylab="Frequency")
 ```
 ### Prediction using Random Forest
-Train model on the training set and check the performance of the model by making predictions on the validation set.
+Train a model on the training set and check the performance of the model by making predictions on the validation set.
 
 ```{r cache=TRUE}
 library(randomForest)
 model <- randomForest(classe ~. , data=trainingSet, method="class")
 model_prediction1 <- predict(model, trainingSet, type = "class")
-```
-
-Not surprising the model performs well on the dataset it was trained on and accurately predicts the outcome class
-
-```{r cache=TRUE}
 confusionMatrix(model_prediction1, trainingSet$classe)
 ```
 
+Not surprisingly the model performs well on the dataset it was trained on and accurately predicts the outcome class
+
+
 ## Model Evaluation
 
-Evaluat model's performance on the held out dataset
+Evaluate model's performance on the held out dataset
 
-```{r cache=TRUE}
+```{r}
 model_prediction2 <- predict(model, validationSet, type = "class")
 confusionMatrix(model_prediction2, validationSet$classe)
 ```
@@ -106,7 +104,7 @@ Model performs well on the cross-validation dataset with 99.53% accuracy and out
 
 Make class prediction on  unlabelled dataset
 
-```{r cache=TRUE}
+```{r}
 model_prediction2 <- predict(model, test, type = "class")
 model_prediction2
 ```
