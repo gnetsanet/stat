@@ -1,0 +1,227 @@
+<h2 id="introduction">Introduction</h2>
+<h2 id="data">Data</h2>
+<ul>
+<li>Source: <a href="http://groupware.les.inf.puc-rio.br/har">source</a></li>
+<li>Training data: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv">Train</a></li>
+<li>Test data: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">Test</a></li>
+</ul>
+<h3 id="data-acquisition-and-clean-up">Data acquisition and clean up</h3>
+<p>Download training and testing datasets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">trainurl &lt;-<span class="st"> &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;</span>
+<span class="kw">download.file</span>(trainurl, <span class="dt">method=</span><span class="st">&#39;curl&#39;</span>, <span class="dt">destfile=</span><span class="st">&#39;trainingfile&#39;</span>)
+
+testurl &lt;-<span class="st"> &quot;https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv&quot;</span>
+<span class="kw">download.file</span>(testurl, <span class="dt">method=</span><span class="st">&#39;curl&#39;</span>, <span class="dt">destfile=</span><span class="st">&#39;testfile&#39;</span>)</code></pre></div>
+<p>No of observations and features in the training and test data</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train&lt;-<span class="kw">read.csv</span>(<span class="st">&#39;trainingfile&#39;</span> ,<span class="dt">na.strings=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>,<span class="st">&quot;NA&quot;</span>, <span class="st">&quot;#DIV/0!&quot;</span>))
+<span class="kw">dim</span>(train)</code></pre></div>
+<pre><code>## [1] 19622   160</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test&lt;-<span class="kw">read.csv</span>(<span class="st">&#39;testfile&#39;</span> ,<span class="dt">na.strings=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>,<span class="st">&quot;NA&quot;</span>, <span class="st">&quot;#DIV/0!&quot;</span>))
+<span class="kw">dim</span>(test)</code></pre></div>
+<pre><code>## [1]  20 160</code></pre>
+<p>Discard features with all missing values</p>
+<p>There are 60 such columns</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(train[,<span class="kw">colSums</span>(<span class="kw">is.na</span>(train))==<span class="dv">0</span>])</code></pre></div>
+<pre><code>## [1] 19622    60</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">which</span>(<span class="kw">colSums</span>(<span class="kw">is.na</span>(train))==<span class="dv">0</span>)</code></pre></div>
+<pre><code>##                    X            user_name raw_timestamp_part_1 
+##                    1                    2                    3 
+## raw_timestamp_part_2       cvtd_timestamp           new_window 
+##                    4                    5                    6 
+##           num_window            roll_belt           pitch_belt 
+##                    7                    8                    9 
+##             yaw_belt     total_accel_belt         gyros_belt_x 
+##                   10                   11                   37 
+##         gyros_belt_y         gyros_belt_z         accel_belt_x 
+##                   38                   39                   40 
+##         accel_belt_y         accel_belt_z        magnet_belt_x 
+##                   41                   42                   43 
+##        magnet_belt_y        magnet_belt_z             roll_arm 
+##                   44                   45                   46 
+##            pitch_arm              yaw_arm      total_accel_arm 
+##                   47                   48                   49 
+##          gyros_arm_x          gyros_arm_y          gyros_arm_z 
+##                   60                   61                   62 
+##          accel_arm_x          accel_arm_y          accel_arm_z 
+##                   63                   64                   65 
+##         magnet_arm_x         magnet_arm_y         magnet_arm_z 
+##                   66                   67                   68 
+##        roll_dumbbell       pitch_dumbbell         yaw_dumbbell 
+##                   84                   85                   86 
+## total_accel_dumbbell     gyros_dumbbell_x     gyros_dumbbell_y 
+##                  102                  113                  114 
+##     gyros_dumbbell_z     accel_dumbbell_x     accel_dumbbell_y 
+##                  115                  116                  117 
+##     accel_dumbbell_z    magnet_dumbbell_x    magnet_dumbbell_y 
+##                  118                  119                  120 
+##    magnet_dumbbell_z         roll_forearm        pitch_forearm 
+##                  121                  122                  123 
+##          yaw_forearm  total_accel_forearm      gyros_forearm_x 
+##                  124                  140                  151 
+##      gyros_forearm_y      gyros_forearm_z      accel_forearm_x 
+##                  152                  153                  154 
+##      accel_forearm_y      accel_forearm_z     magnet_forearm_x 
+##                  155                  156                  157 
+##     magnet_forearm_y     magnet_forearm_z               classe 
+##                  158                  159                  160</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train&lt;-train[,<span class="kw">which</span>(<span class="kw">colSums</span>(<span class="kw">is.na</span>(train))==<span class="dv">0</span>)]
+
+<span class="kw">dim</span>(test[,<span class="kw">colSums</span>(<span class="kw">is.na</span>(test))==<span class="dv">0</span>])</code></pre></div>
+<pre><code>## [1] 20 60</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">which</span>(<span class="kw">colSums</span>(<span class="kw">is.na</span>(test))==<span class="dv">0</span>)</code></pre></div>
+<pre><code>##                    X            user_name raw_timestamp_part_1 
+##                    1                    2                    3 
+## raw_timestamp_part_2       cvtd_timestamp           new_window 
+##                    4                    5                    6 
+##           num_window            roll_belt           pitch_belt 
+##                    7                    8                    9 
+##             yaw_belt     total_accel_belt         gyros_belt_x 
+##                   10                   11                   37 
+##         gyros_belt_y         gyros_belt_z         accel_belt_x 
+##                   38                   39                   40 
+##         accel_belt_y         accel_belt_z        magnet_belt_x 
+##                   41                   42                   43 
+##        magnet_belt_y        magnet_belt_z             roll_arm 
+##                   44                   45                   46 
+##            pitch_arm              yaw_arm      total_accel_arm 
+##                   47                   48                   49 
+##          gyros_arm_x          gyros_arm_y          gyros_arm_z 
+##                   60                   61                   62 
+##          accel_arm_x          accel_arm_y          accel_arm_z 
+##                   63                   64                   65 
+##         magnet_arm_x         magnet_arm_y         magnet_arm_z 
+##                   66                   67                   68 
+##        roll_dumbbell       pitch_dumbbell         yaw_dumbbell 
+##                   84                   85                   86 
+## total_accel_dumbbell     gyros_dumbbell_x     gyros_dumbbell_y 
+##                  102                  113                  114 
+##     gyros_dumbbell_z     accel_dumbbell_x     accel_dumbbell_y 
+##                  115                  116                  117 
+##     accel_dumbbell_z    magnet_dumbbell_x    magnet_dumbbell_y 
+##                  118                  119                  120 
+##    magnet_dumbbell_z         roll_forearm        pitch_forearm 
+##                  121                  122                  123 
+##          yaw_forearm  total_accel_forearm      gyros_forearm_x 
+##                  124                  140                  151 
+##      gyros_forearm_y      gyros_forearm_z      accel_forearm_x 
+##                  152                  153                  154 
+##      accel_forearm_y      accel_forearm_z     magnet_forearm_x 
+##                  155                  156                  157 
+##     magnet_forearm_y     magnet_forearm_z           problem_id 
+##                  158                  159                  160</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test&lt;-test[,<span class="kw">which</span>(<span class="kw">colSums</span>(<span class="kw">is.na</span>(test))==<span class="dv">0</span>)]</code></pre></div>
+<p>Remove the following features/columns that are irrelevant and hence non-predictive</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">colnames</span>(train[,<span class="dv">1</span>:<span class="dv">7</span>])</code></pre></div>
+<pre><code>## [1] &quot;X&quot;                    &quot;user_name&quot;            &quot;raw_timestamp_part_1&quot;
+## [4] &quot;raw_timestamp_part_2&quot; &quot;cvtd_timestamp&quot;       &quot;new_window&quot;          
+## [7] &quot;num_window&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">train&lt;-train[,-<span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">7</span>)]
+<span class="kw">dim</span>(train)</code></pre></div>
+<pre><code>## [1] 19622    53</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">test&lt;-test[,-<span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">7</span>)]
+<span class="kw">dim</span>(test)</code></pre></div>
+<pre><code>## [1] 20 53</code></pre>
+<h2 id="preprocessing">Preprocessing</h2>
+<h3 id="further-partitioning-the-training-data-into-training-and-validation-sets">Further partitioning the training data into training and validation sets</h3>
+<p>Partition the data using random subsampling without replacement</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(caret)
+<span class="kw">set.seed</span>(<span class="dv">1413</span>)
+trainset &lt;-<span class="st"> </span><span class="kw">createDataPartition</span>(<span class="dt">y=</span>train$classe, <span class="dt">p=</span><span class="fl">0.75</span>, <span class="dt">list=</span><span class="ot">FALSE</span>)
+trainingSet &lt;-<span class="st"> </span>train[trainset,]
+validationSet &lt;-<span class="st"> </span>train[-trainset,]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(trainingSet)</code></pre></div>
+<pre><code>## [1] 14718    53</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(validationSet)</code></pre></div>
+<pre><code>## [1] 4904   53</code></pre>
+<p>Visualizing the distribution of the outcome variable</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(trainingSet$classe, <span class="dt">col=</span><span class="st">&quot;coral2&quot;</span>, <span class="dt">main=</span><span class="st">&quot;Frequency of Unilateral Dumbbell Biceps Curl Fashion&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;Unilateral Dumbbell Biceps Curl Fashions&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;Frequency&quot;</span>)</code></pre></div>
+<p><img src="figure/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" /> ### Prediction using Random Forest Train model on the training set and check the performance of the model by making predictions on the validation set.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(randomForest)
+model &lt;-<span class="st"> </span><span class="kw">randomForest</span>(classe ~. , <span class="dt">data=</span>trainingSet, <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)
+model_prediction1 &lt;-<span class="st"> </span><span class="kw">predict</span>(model, trainingSet, <span class="dt">type =</span> <span class="st">&quot;class&quot;</span>)</code></pre></div>
+<p>Not surprising the model performs well on the dataset it was trained on and accurately predicts the outcome class</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">confusionMatrix</span>(model_prediction1, trainingSet$classe)</code></pre></div>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 4185    0    0    0    0
+##          B    0 2848    0    0    0
+##          C    0    0 2567    0    0
+##          D    0    0    0 2412    0
+##          E    0    0    0    0 2706
+## 
+## Overall Statistics
+##                                      
+##                Accuracy : 1          
+##                  95% CI : (0.9997, 1)
+##     No Information Rate : 0.2843     
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16  
+##                                      
+##                   Kappa : 1          
+##  Mcnemar&#39;s Test P-Value : NA         
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Specificity            1.0000   1.0000   1.0000   1.0000   1.0000
+## Pos Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Neg Pred Value         1.0000   1.0000   1.0000   1.0000   1.0000
+## Prevalence             0.2843   0.1935   0.1744   0.1639   0.1839
+## Detection Rate         0.2843   0.1935   0.1744   0.1639   0.1839
+## Detection Prevalence   0.2843   0.1935   0.1744   0.1639   0.1839
+## Balanced Accuracy      1.0000   1.0000   1.0000   1.0000   1.0000</code></pre>
+<h2 id="model-evaluation">Model Evaluation</h2>
+<p>Evaluate model's performance on the held out dataset</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_prediction2 &lt;-<span class="st"> </span><span class="kw">predict</span>(model, validationSet, <span class="dt">type =</span> <span class="st">&quot;class&quot;</span>)
+<span class="kw">confusionMatrix</span>(model_prediction2, validationSet$classe)</code></pre></div>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1394    6    0    0    0
+##          B    1  939    3    0    0
+##          C    0    4  850    6    0
+##          D    0    0    2  797    2
+##          E    0    0    0    1  899
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9949          
+##                  95% CI : (0.9925, 0.9967)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9936          
+##  Mcnemar&#39;s Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.9993   0.9895   0.9942   0.9913   0.9978
+## Specificity            0.9983   0.9990   0.9975   0.9990   0.9998
+## Pos Pred Value         0.9957   0.9958   0.9884   0.9950   0.9989
+## Neg Pred Value         0.9997   0.9975   0.9988   0.9983   0.9995
+## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
+## Detection Rate         0.2843   0.1915   0.1733   0.1625   0.1833
+## Detection Prevalence   0.2855   0.1923   0.1754   0.1633   0.1835
+## Balanced Accuracy      0.9988   0.9942   0.9958   0.9952   0.9988</code></pre>
+<p>Model performs well on the cross-validation dataset with 99.53% accuracy and out-of-sample error rate of 0.47%</p>
+<h2 id="prediction-on-the-test-dataset">Prediction on the test dataset</h2>
+<p>Make class prediction on unlabelled dataset</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_prediction2 &lt;-<span class="st"> </span><span class="kw">predict</span>(model, test, <span class="dt">type =</span> <span class="st">&quot;class&quot;</span>)
+model_prediction2</code></pre></div>
+<pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
+##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
+## Levels: A B C D E</code></pre>
+<h2 id="submission">Submission</h2>
+<p>Prep files for submission. Write the class predicted for each observation in the test dataset into a file.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">write_class_predictions_to_file =<span class="st"> </span>function(x) {
+     for (k in <span class="dv">1</span>:<span class="kw">length</span>(x)) {
+         file_name =<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;problem_id_&quot;</span>,k,<span class="st">&quot;.txt&quot;</span>)
+         <span class="kw">write.table</span>(x[k],<span class="dt">file=</span>file_name, <span class="dt">quote=</span><span class="ot">FALSE</span>,<span class="dt">row.names=</span><span class="ot">FALSE</span>,<span class="dt">col.names=</span><span class="ot">FALSE</span>)
+  }
+}
+
+<span class="kw">write_class_predictions_to_file</span>(model_prediction2)</code></pre></div>
