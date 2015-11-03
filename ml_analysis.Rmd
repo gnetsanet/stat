@@ -114,7 +114,7 @@ model_prediction2
 
 ## Submission
 
-Prep files for submission. Write the class predicted for each observation in the test dataset into a file.
+Prep files for submission. Write the class predicted for each observation in the test dataset, into a file.
 
 ```{r cache=TRUE}
 write_class_predictions_to_file = function(x) {
